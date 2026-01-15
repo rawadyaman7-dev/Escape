@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Locked Content</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .container {
+      background: #1e1e1e;
+      padding: 30px;
+      border-radius: 12px;
+      width: 400px;
+      text-align: center;
+    }
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      margin-top: 10px;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      margin-top: 12px;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      background: #4caf50;
+      color: white;
+    }
+    .message {
+      margin-top: 10px;
+      min-height: 20px;
+    }
+    video {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>🔒 Enter the Code</h2>
+
+    <input id="codeInput" type="password" placeholder="Code..." />
+    <button onclick="unlock()">Unlock</butto
