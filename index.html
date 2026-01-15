@@ -2,18 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Locked Content</title>
+  <title>Locked Video</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <style>
     body {
+      margin: 0;
       font-family: Arial, sans-serif;
       background: #111;
       color: white;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
     }
+
     .container {
       background: #1e1e1e;
       padding: 30px;
@@ -21,30 +24,41 @@
       width: 400px;
       text-align: center;
     }
+
     input {
       width: 100%;
       padding: 12px;
       font-size: 16px;
-      margin-top: 10px;
+      margin-top: 12px;
       border-radius: 8px;
       border: none;
     }
+
     button {
-      margin-top: 12px;
-      padding: 12px;
       width: 100%;
+      padding: 12px;
       font-size: 16px;
+      margin-top: 12px;
       border-radius: 8px;
       border: none;
       cursor: pointer;
       background: #4caf50;
       color: white;
     }
+
     .message {
       margin-top: 10px;
       min-height: 20px;
     }
+
     video {
+      width: 100%;
+      margin-top: 20px;
+      border-radius: 10px;
+      background: black;
+    }
+
+    .hidden {
       display: none;
     }
   </style>
@@ -52,17 +66,27 @@
 <body>
 
   <div class="container">
-    <h2>🔓 Enter the Code</h2>
+    <h2>🔒 Enter the Code</h2>
 
-    <!-- 👀 TEXT INPUT (password visible) -->
-    <input id="codeInput" type="text" placeholder="Enter code..." />
+    <input
+      id="codeInput"
+      type="password"
+      placeholder="Enter code..."
+      autocomplete="off"
+    />
 
     <button onclick="unlock()">Unlock</button>
 
     <div class="message" id="message"></div>
 
-    <!-- 🎥 Hidden video -->
-    <video id="video" class="hidden" controls loop autoplay>
+    <!-- LOOPING VIDEO -->
+    <video
+      id="video"
+      class="hidden"
+      loop
+      muted
+      playsinline
+    >
       <source src="video.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
@@ -81,24 +105,14 @@
         message.textContent = "✅ Access granted";
         message.style.color = "lightgreen";
 
-        // Show video
-        video.style.display = "block";
+        video.classList.remove("hidden");
 
-        // Play video
-        video.play().catch(() => {});
-
-        // 🔥 FORCE FULLSCREEN
-        if (video.requestFullscreen) {
-          video.requestFullscreen();
-        } else if (video.webkitRequestFullscreen) {
-          video.webkitRequestFullscreen(); // Safari
-        } else if (video.msRequestFullscreen) {
-          video.msRequestFullscreen(); // IE/Edge
-        }
+        video.currentTime = 0;
+        video.play(); // required for GitHub Pages & mobile
 
         input.disabled = true;
       } else {
-        message.textContent = "❌ Wrong code, try again";
+        message.textContent = "❌ Wrong code. Try again.";
         message.style.color = "red";
         input.select();
       }
