@@ -45,11 +45,6 @@
       min-height: 20px;
     }
     video {
-      width: 100%;
-      margin-top: 20px;
-      border-radius: 10px;
-    }
-    .hidden {
       display: none;
     }
   </style>
@@ -57,21 +52,24 @@
 <body>
 
   <div class="container">
-    <h2>🔒 Enter the Code</h2>
+    <h2>🔓 Enter the Code</h2>
 
-    <input id="codeInput" type="password" placeholder="Code..." />
+    <!-- 👀 TEXT INPUT (password visible) -->
+    <input id="codeInput" type="text" placeholder="Enter code..." />
+
     <button onclick="unlock()">Unlock</button>
 
     <div class="message" id="message"></div>
 
-    <video id="video" class="hidden" controls>
+    <!-- 🎥 Hidden video -->
+    <video id="video" controls>
       <source src="video.mp4" type="video/mp4">
       Your browser does not support the video tag.
     </video>
   </div>
 
   <script>
-    // 🔑 CHANGE YOUR CODE HERE
+    // 🔑 CHANGE YOUR SECRET CODE HERE
     const SECRET_CODE = "1234";
 
     function unlock() {
@@ -82,9 +80,23 @@
       if (input.value === SECRET_CODE) {
         message.textContent = "✅ Access granted";
         message.style.color = "lightgreen";
-        video.classList.remove("hidden");
-        input.disabled = true;
+
+        // Show video
+        video.style.display = "block";
+
+        // Play video
         video.play().catch(() => {});
+
+        // 🔥 FORCE FULLSCREEN
+        if (video.requestFullscreen) {
+          video.requestFullscreen();
+        } else if (video.webkitRequestFullscreen) {
+          video.webkitRequestFullscreen(); // Safari
+        } else if (video.msRequestFullscreen) {
+          video.msRequestFullscreen(); // IE/Edge
+        }
+
+        input.disabled = true;
       } else {
         message.textContent = "❌ Wrong code, try again";
         message.style.color = "red";
