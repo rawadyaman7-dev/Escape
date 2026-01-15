@@ -2,121 +2,305 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Locked Video</title>
+  <title>Locked CCTV Grid</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
-    body {
-      margin: 0;
+    body{
+      margin:0;
       font-family: Arial, sans-serif;
-      background: #111;
-      color: white;
-      height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background:#111;
+      color:#fff;
+      height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
     }
 
-    .container {
-      background: #1e1e1e;
-      padding: 30px;
-      border-radius: 12px;
-      width: 400px;
-      text-align: center;
+    /* Unlock card */
+    .container{
+      background:#1e1e1e;
+      padding:30px;
+      border-radius:12px;
+      width:420px;
+      text-align:center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
+    }
+    input{
+      width:100%;
+      padding:12px;
+      font-size:16px;
+      margin-top:12px;
+      border-radius:8px;
+      border:none;
+      outline:none;
+    }
+    button{
+      width:100%;
+      padding:12px;
+      font-size:16px;
+      margin-top:12px;
+      border-radius:8px;
+      border:none;
+      cursor:pointer;
+      background:#4caf50;
+      color:white;
+    }
+    .message{
+      margin-top:10px;
+      min-height:20px;
     }
 
-    input {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      margin-top: 12px;
-      border-radius: 8px;
-      border: none;
+    /* Fullscreen CCTV overlay */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background:#000;
+      display:none;              /* hidden until unlocked */
+      z-index:9999;
+    }
+    .overlay.show{
+      display:block;
     }
 
-    button {
-      width: 100%;
-      padding: 12px;
-      font-size: 16px;
-      margin-top: 12px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      background: #4caf50;
-      color: white;
+    /* Top bar (optional CCTV vibe) */
+    .topbar{
+      height:54px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:0 16px;
+      border-bottom:1px solid rgba(255,255,255,0.12);
+      background:rgba(10,10,10,0.85);
+      box-sizing:border-box;
+    }
+    .topbar .left{
+      font-weight:700;
+      letter-spacing:0.8px;
+      font-size:14px;
+      opacity:0.9;
+    }
+    .topbar .right{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      font-size:12px;
+      opacity:0.85;
+    }
+    .pill{
+      border:1px solid rgba(255,255,255,0.18);
+      padding:6px 10px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.05);
+    }
+    .exitBtn{
+      cursor:pointer;
+      border:none;
+      border-radius:10px;
+      padding:8px 12px;
+      background:rgba(255,255,255,0.12);
+      color:#fff;
+      font-weight:600;
     }
 
-    .message {
-      margin-top: 10px;
-      min-height: 20px;
+    /* CCTV grid */
+    .grid{
+      height: calc(100% - 54px);
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      grid-template-rows:1fr 1fr;
+      gap:10px;
+      padding:10px;
+      box-sizing:border-box;
     }
 
-    video {
-      width: 100%;
-      margin-top: 20px;
-      border-radius: 10px;
-      background: black;
+    .cam{
+      position:relative;
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:14px;
+      overflow:hidden;
+      background:#050505;
     }
 
-    .hidden {
-      display: none;
+    .cam img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      filter: contrast(1.05) brightness(0.95);
+    }
+
+    /* Camera label */
+    .label{
+      position:absolute;
+      left:10px;
+      top:10px;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.6px;
+      background:rgba(0,0,0,0.45);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+
+    /* REC dot */
+    .rec{
+      position:absolute;
+      right:10px;
+      top:10px;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      font-size:12px;
+      font-weight:700;
+      background:rgba(0,0,0,0.45);
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.15);
+    }
+    .dot{
+      width:8px;
+      height:8px;
+      border-radius:50%;
+      background:#ff3b30;
+      box-shadow: 0 0 10px rgba(255,59,48,0.8);
+    }
+
+    /* Make the unlock card disappear once unlocked */
+    .hide{
+      display:none;
+    }
+
+    /* Mobile: keep grid clean */
+    @media (max-width: 520px){
+      .container{ width: 92vw; }
+      .grid{ gap:8px; padding:8px; }
+      .cam{ border-radius:12px; }
     }
   </style>
 </head>
+
 <body>
 
-  <div class="container">
+  <!-- Unlock UI -->
+  <div class="container" id="unlockCard">
     <h2>🔒 Enter the Code</h2>
-
-    <input
-      id="codeInput"
-      type="password"
-      placeholder="Enter code..."
-      autocomplete="off"
-    />
-
-    <button onclick="unlock()">Unlock</button>
-
+    <input id="codeInput" type="password" placeholder="Enter code..." autocomplete="off" />
+    <button id="unlockBtn">Unlock</button>
     <div class="message" id="message"></div>
+  </div>
 
-    <!-- LOOPING VIDEO -->
-    <video
-      id="video"
-      class="hidden"
-      loop
-      muted
-      playsinline
-    >
-      <source src="video.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
+  <!-- Fullscreen CCTV -->
+  <div class="overlay" id="overlay">
+    <div class="topbar">
+      <div class="left">CCTV MONITOR • LIVE FEED</div>
+      <div class="right">
+        <div class="pill" id="clock">--:--:--</div>
+        <button class="exitBtn" id="exitBtn">Exit</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="cam">
+        <img src="cam1.jpg" alt="Camera 1" />
+        <div class="label">CAM 01</div>
+        <div class="rec"><span class="dot"></span>REC</div>
+      </div>
+
+      <div class="cam">
+        <img src="cam2.jpg" alt="Camera 2" />
+        <div class="label">CAM 02</div>
+        <div class="rec"><span class="dot"></span>REC</div>
+      </div>
+
+      <div class="cam">
+        <img src="cam3.jpg" alt="Camera 3" />
+        <div class="label">CAM 03</div>
+        <div class="rec"><span class="dot"></span>REC</div>
+      </div>
+
+      <div class="cam">
+        <img src="cam4.jpg" alt="Camera 4" />
+        <div class="label">CAM 04</div>
+        <div class="rec"><span class="dot"></span>REC</div>
+      </div>
+    </div>
   </div>
 
   <script>
-    // 🔑 CHANGE YOUR SECRET CODE HERE
+    // 🔑 Change your secret code here
     const SECRET_CODE = "1234";
 
-    function unlock() {
-      const input = document.getElementById("codeInput");
-      const message = document.getElementById("message");
-      const video = document.getElementById("video");
+    const input = document.getElementById("codeInput");
+    const btn = document.getElementById("unlockBtn");
+    const msg = document.getElementById("message");
+    const overlay = document.getElementById("overlay");
+    const unlockCard = document.getElementById("unlockCard");
+    const exitBtn = document.getElementById("exitBtn");
+    const clockEl = document.getElementById("clock");
 
-      if (input.value === SECRET_CODE) {
-        message.textContent = "✅ Access granted";
-        message.style.color = "lightgreen";
+    function updateClock(){
+      const d = new Date();
+      const hh = String(d.getHours()).padStart(2,'0');
+      const mm = String(d.getMinutes()).padStart(2,'0');
+      const ss = String(d.getSeconds()).padStart(2,'0');
+      clockEl.textContent = `${hh}:${mm}:${ss}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
 
-        video.classList.remove("hidden");
+    async function enterFullscreen(el){
+      // Fullscreen must be triggered by a user action (button click)
+      try{
+        if (el.requestFullscreen) await el.requestFullscreen();
+        else if (el.webkitRequestFullscreen) await el.webkitRequestFullscreen(); // Safari
+      }catch(e){
+        // If fullscreen fails, we still show the overlay normally
+      }
+    }
 
-        video.currentTime = 0;
-        video.play(); // required for GitHub Pages & mobile
+    function unlock(){
+      if (input.value === SECRET_CODE){
+        msg.textContent = "✅ Access granted";
+        msg.style.color = "lightgreen";
 
-        input.disabled = true;
+        overlay.classList.add("show");
+        unlockCard.classList.add("hide");
+
+        // Try to go fullscreen
+        enterFullscreen(overlay);
+
       } else {
-        message.textContent = "❌ Wrong code. Try again.";
-        message.style.color = "red";
+        msg.textContent = "❌ Wrong code. Try again.";
+        msg.style.color = "red";
         input.select();
       }
     }
+
+    function exitView(){
+      overlay.classList.remove("show");
+      unlockCard.classList.remove("hide");
+      input.value = "";
+      msg.textContent = "";
+      input.focus();
+
+      // Exit fullscreen if active
+      if (document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+      else if (document.webkitFullscreenElement) document.webkitExitFullscreen?.();
+    }
+
+    btn.addEventListener("click", unlock);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") unlock();
+    });
+
+    exitBtn.addEventListener("click", exitView);
+
+    // Escape key exits (desktop)
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && overlay.classList.contains("show")) exitView();
+    });
   </script>
 
 </body>
