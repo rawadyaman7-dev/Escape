@@ -60,4 +60,38 @@
     <h2>🔒 Enter the Code</h2>
 
     <input id="codeInput" type="password" placeholder="Code..." />
-    <button onclick="unlock()">Unlock</butto
+    <button onclick="unlock()">Unlock</button>
+
+    <div class="message" id="message"></div>
+
+    <video id="video" class="hidden" controls>
+      <source src="video.mp4" type="video/mp4">
+      Your browser does not support the video tag.
+    </video>
+  </div>
+
+  <script>
+    // 🔑 CHANGE YOUR CODE HERE
+    const SECRET_CODE = "1234";
+
+    function unlock() {
+      const input = document.getElementById("codeInput");
+      const message = document.getElementById("message");
+      const video = document.getElementById("video");
+
+      if (input.value === SECRET_CODE) {
+        message.textContent = "✅ Access granted";
+        message.style.color = "lightgreen";
+        video.classList.remove("hidden");
+        input.disabled = true;
+        video.play().catch(() => {});
+      } else {
+        message.textContent = "❌ Wrong code, try again";
+        message.style.color = "red";
+        input.select();
+      }
+    }
+  </script>
+
+</body>
+</html>
