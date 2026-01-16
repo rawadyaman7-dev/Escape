@@ -2,263 +2,662 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Locked CCTV Grid</title>
+  <title>Secure CCTV Console</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <style>
+    :root{
+      --bg0:#070A0F;
+      --bg1:#0B1220;
+      --card:#0f172a;
+      --card2:#0b1220;
+      --line:rgba(255,255,255,.12);
+      --text:rgba(255,255,255,.92);
+      --muted:rgba(255,255,255,.70);
+      --soft:rgba(255,255,255,.08);
+      --green:#38f6a3;
+      --green2:#22c55e;
+      --red:#ff3b30;
+      --amber:#ffcc66;
+      --shadow: 0 18px 50px rgba(0,0,0,.55);
+      --r:18px;
+    }
+
+    *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: Arial, sans-serif;
-      background:#111;
-      color:#fff;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      color:var(--text);
       height:100vh;
+      overflow:hidden;
+      background:
+        radial-gradient(1200px 700px at 10% 10%, rgba(56,246,163,.14), transparent 60%),
+        radial-gradient(900px 600px at 90% 20%, rgba(255,204,102,.12), transparent 60%),
+        radial-gradient(900px 800px at 50% 110%, rgba(78,139,255,.12), transparent 60%),
+        linear-gradient(180deg, var(--bg0), var(--bg1));
       display:flex;
-      justify-content:center;
       align-items:center;
+      justify-content:center;
+    }
+
+    /* Subtle grid background */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 38px 38px;
+      opacity:.25;
+      pointer-events:none;
+      mask-image: radial-gradient(closest-side at 50% 45%, rgba(0,0,0,1), rgba(0,0,0,.2) 65%, rgba(0,0,0,0));
+    }
+
+    /* Floating particles (tiny) */
+    .spark{
+      position:fixed;
+      width:6px;height:6px;
+      border-radius:50%;
+      background:rgba(56,246,163,.65);
+      filter: blur(.2px);
+      opacity:.35;
+      animation: drift 10s linear infinite;
+      pointer-events:none;
+    }
+    .spark:nth-child(1){left:8%; top:18%; animation-duration: 12s; opacity:.25}
+    .spark:nth-child(2){left:88%; top:26%; animation-duration: 14s; background:rgba(255,204,102,.6)}
+    .spark:nth-child(3){left:22%; top:78%; animation-duration: 16s; opacity:.22}
+    @keyframes drift{
+      0%{transform: translateY(0) translateX(0)}
+      50%{transform: translateY(-18px) translateX(12px)}
+      100%{transform: translateY(0) translateX(0)}
     }
 
     /* Unlock card */
-    .container{
-      background:#1e1e1e;
-      padding:30px;
-      border-radius:12px;
-      width:420px;
-      text-align:center;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.35);
-    }
-    input{
-      width:100%;
-      padding:12px;
-      font-size:16px;
-      margin-top:12px;
-      border-radius:8px;
-      border:none;
-      outline:none;
-    }
-    button{
-      width:100%;
-      padding:12px;
-      font-size:16px;
-      margin-top:12px;
-      border-radius:8px;
-      border:none;
-      cursor:pointer;
-      background:#4caf50;
-      color:white;
-    }
-    .message{
-      margin-top:10px;
-      min-height:20px;
+    .panel{
+      width:min(520px, 92vw);
+      border-radius: calc(var(--r) + 6px);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+      backdrop-filter: blur(10px);
     }
 
-    /* Fullscreen CCTV overlay */
+    .panel::after{
+      content:"";
+      position:absolute;
+      inset:-120px -120px auto auto;
+      width:280px;height:280px;
+      background: radial-gradient(circle at 30% 30%, rgba(56,246,163,.35), transparent 55%);
+      transform: rotate(18deg);
+      pointer-events:none;
+      opacity:.6;
+    }
+
+    .panelHead{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:14px;
+      padding: 6px 8px 12px 8px;
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      user-select:none;
+    }
+    .logo{
+      width:38px;height:38px;
+      border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(56,246,163,.85), rgba(56,246,163,.18) 60%, rgba(0,0,0,.0) 62%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.03));
+      border:1px solid rgba(255,255,255,.14);
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      position:relative;
+    }
+    .logo::after{
+      content:"";
+      position:absolute;
+      inset:9px;
+      border-radius:10px;
+      border:1px dashed rgba(255,255,255,.22);
+      opacity:.65;
+    }
+    .brandText .t1{
+      font-weight:800;
+      letter-spacing:.6px;
+      font-size:14px;
+      line-height:1.05;
+    }
+    .brandText .t2{
+      margin-top:2px;
+      font-size:12px;
+      color: var(--muted);
+      letter-spacing:.2px;
+    }
+
+    .statusPills{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+    }
+    .pill{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.18);
+      padding:8px 10px;
+      border-radius:999px;
+      font-size:12px;
+      color: var(--muted);
+      user-select:none;
+    }
+    .dot{
+      width:8px;height:8px;border-radius:50%;
+      background: rgba(56,246,163,.85);
+      box-shadow: 0 0 12px rgba(56,246,163,.55);
+    }
+    .dot.red{
+      background: rgba(255,59,48,.9);
+      box-shadow: 0 0 12px rgba(255,59,48,.45);
+    }
+
+    .content{
+      border-radius: var(--r);
+      background: rgba(3,7,18,.55);
+      border:1px solid rgba(255,255,255,.10);
+      padding: 18px;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+
+    .title h2{
+      margin:0;
+      font-size:18px;
+      letter-spacing:.4px;
+    }
+    .subtitle{
+      font-size:12px;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    .hint{
+      font-size:12px;
+      color: rgba(255,255,255,.62);
+      background: rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.10);
+      padding:8px 10px;
+      border-radius:12px;
+      user-select:none;
+    }
+
+    .row{
+      display:flex;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .field{
+      flex:1;
+      position:relative;
+    }
+
+    input{
+      width:100%;
+      padding: 14px 14px 14px 42px;
+      font-size:16px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.14);
+      outline:none;
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      transition: transform .15s ease, border-color .15s ease, background .15s ease;
+    }
+    input:focus{
+      border-color: rgba(56,246,163,.55);
+      background: rgba(56,246,163,.07);
+      transform: translateY(-1px);
+    }
+    .keyIcon{
+      position:absolute;
+      left:14px;
+      top:50%;
+      transform: translateY(-50%);
+      width:16px;height:16px;
+      opacity:.8;
+    }
+    .keyIcon::before{
+      content:"";
+      display:block;
+      width:16px;height:16px;
+      border-radius:4px;
+      border:1px solid rgba(255,255,255,.28);
+      background: rgba(255,255,255,.06);
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+    }
+    .keyIcon::after{
+      content:"";
+      position:absolute;
+      left:5px; top:5px;
+      width:6px;height:6px;
+      border-radius:50%;
+      background: rgba(56,246,163,.9);
+      box-shadow: 0 0 10px rgba(56,246,163,.55);
+    }
+
+    button{
+      width: 140px;
+      padding: 14px 14px;
+      font-size:14px;
+      font-weight:800;
+      letter-spacing:.5px;
+      border-radius: 14px;
+      border:1px solid rgba(255,255,255,.16);
+      cursor:pointer;
+      background: linear-gradient(180deg, rgba(56,246,163,.95), rgba(34,197,94,.88));
+      color:#05130c;
+      box-shadow: 0 14px 30px rgba(56,246,163,.18);
+      transition: transform .14s ease, filter .14s ease;
+    }
+    button:hover{ transform: translateY(-1px); filter: brightness(1.03); }
+    button:active{ transform: translateY(0px); filter: brightness(.98); }
+
+    .message{
+      margin-top: 12px;
+      min-height: 22px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .shake{
+      animation: shake .22s linear 1;
+    }
+    @keyframes shake{
+      0%{transform: translateX(0)}
+      25%{transform: translateX(-6px)}
+      50%{transform: translateX(6px)}
+      75%{transform: translateX(-4px)}
+      100%{transform: translateX(0)}
+    }
+
+    /* OVERLAYS */
     .overlay{
       position:fixed;
       inset:0;
-      background:#000;
-      display:none;              /* hidden until shown */
+      background: radial-gradient(1000px 600px at 40% 0%, rgba(56,246,163,.10), transparent 60%),
+                  linear-gradient(180deg, rgba(0,0,0,.90), rgba(0,0,0,.98));
+      display:none;
       z-index:9999;
     }
-    .overlay.show{
-      display:block;
-    }
+    .overlay.show{ display:block; }
 
-    /* Top bar */
+    /* Topbar (console look) */
     .topbar{
-      height:54px;
+      height:64px;
       display:flex;
       align-items:center;
       justify-content:space-between;
       padding:0 16px;
-      border-bottom:1px solid rgba(255,255,255,0.12);
-      background:rgba(10,10,10,0.85);
-      box-sizing:border-box;
+      border-bottom:1px solid rgba(255,255,255,.10);
+      background: rgba(10,14,24,.72);
+      backdrop-filter: blur(10px);
     }
-    .topbar .left{
-      font-weight:700;
-      letter-spacing:0.8px;
-      font-size:14px;
-      opacity:0.9;
-    }
-    .topbar .right{
+
+    .topLeft{
       display:flex;
-      gap:12px;
-      align-items:center;
+      flex-direction:column;
+      gap:2px;
+      user-select:none;
+    }
+    .topLeft .main{
+      font-weight:900;
+      letter-spacing:1.1px;
+      font-size:13px;
+      opacity:.95;
+    }
+    .topLeft .sub{
       font-size:12px;
-      opacity:0.85;
+      color: rgba(255,255,255,.68);
+      letter-spacing:.2px;
     }
-    .pill{
-      border:1px solid rgba(255,255,255,0.18);
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(255,255,255,0.05);
+
+    .topRight{
+      display:flex;
+      align-items:center;
+      gap:10px;
     }
+    .badge{
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+      padding: 8px 10px;
+      font-size:12px;
+      color: rgba(255,255,255,.75);
+      user-select:none;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .badge .tinyDot{
+      width:8px;height:8px;border-radius:50%;
+      background: rgba(255,59,48,.9);
+      box-shadow: 0 0 12px rgba(255,59,48,.45);
+    }
+
     .exitBtn{
       cursor:pointer;
       border:none;
-      border-radius:10px;
-      padding:8px 12px;
-      background:rgba(255,255,255,0.12);
+      border-radius: 14px;
+      padding: 10px 12px;
+      background: rgba(255,255,255,.10);
       color:#fff;
-      font-weight:600;
+      font-weight:800;
+      letter-spacing:.4px;
+      transition: transform .14s ease, filter .14s ease, background .14s ease;
     }
+    .exitBtn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.14); }
+    .exitBtn:active{ transform: translateY(0px); }
 
     /* CCTV grid */
     .grid{
-      height: calc(100% - 54px);
+      height: calc(100% - 64px);
       display:grid;
       grid-template-columns:1fr 1fr;
       grid-template-rows:1fr 1fr;
-      gap:10px;
-      padding:10px;
-      box-sizing:border-box;
+      gap:14px;
+      padding:14px;
     }
 
     .cam{
       position:relative;
-      border:1px solid rgba(255,255,255,0.15);
-      border-radius:14px;
+      border-radius: 22px;
       overflow:hidden;
-      background:#050505;
       cursor:pointer;
+      background: #000;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 14px 40px rgba(0,0,0,.55);
+      transform: translateZ(0);
+      transition: transform .18s ease, border-color .18s ease;
+    }
+    .cam:hover{
+      transform: translateY(-2px);
+      border-color: rgba(56,246,163,.28);
     }
 
     .cam img{
       width:100%;
       height:100%;
-      object-fit:cover;
+      object-fit: cover;
       display:block;
-      filter: contrast(1.05) brightness(0.95);
+      filter: contrast(1.06) brightness(.95) saturate(1.05);
+      transform: scale(1.02);
     }
 
-    /* Camera label */
-    .label{
+    /* Scanlines + vignette */
+    .cam::before{
+      content:"";
       position:absolute;
-      left:10px;
-      top:10px;
+      inset:0;
+      background:
+        radial-gradient(closest-side at 50% 45%, transparent 55%, rgba(0,0,0,.35)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,.04),
+          rgba(255,255,255,.04) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+      opacity:.35;
+      pointer-events:none;
+      mix-blend-mode: overlay;
+    }
+
+    /* Camera overlay text */
+    .camMeta{
+      position:absolute;
+      left:14px;
+      bottom:14px;
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      pointer-events:none;
+    }
+
+    .label{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      width: fit-content;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.40);
       font-size:12px;
-      font-weight:700;
-      letter-spacing:0.6px;
-      background:rgba(0,0,0,0.45);
-      padding:6px 10px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.15);
+      font-weight:900;
+      letter-spacing:.8px;
+      color: rgba(255,255,255,.88);
       user-select:none;
     }
 
-    /* REC dot */
-    .rec{
-      position:absolute;
-      right:10px;
-      top:10px;
+    .smallLine{
       display:flex;
       align-items:center;
-      gap:6px;
+      gap:10px;
+      padding: 8px 10px;
+      border-radius: 999px;
+      border:1px solid rgba(255,255,255,.12);
+      background: rgba(0,0,0,.32);
       font-size:12px;
-      font-weight:700;
-      background:rgba(0,0,0,0.45);
-      padding:6px 10px;
+      color: rgba(255,255,255,.72);
+      user-select:none;
+      width: fit-content;
+    }
+
+    .rec{
+      position:absolute;
+      top:14px;
+      right:14px;
+      display:flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 10px;
       border-radius:999px;
-      border:1px solid rgba(255,255,255,0.15);
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(0,0,0,.40);
+      font-size:12px;
+      font-weight:900;
+      letter-spacing:.8px;
       user-select:none;
     }
-    .dot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#ff3b30;
-      box-shadow: 0 0 10px rgba(255,59,48,0.8);
+    .recDot{
+      width:8px;height:8px;border-radius:50%;
+      background: rgba(255,59,48,.92);
+      box-shadow: 0 0 12px rgba(255,59,48,.55);
+      animation: blink 1.2s ease-in-out infinite;
+    }
+    @keyframes blink{
+      0%, 60%{ opacity: 1; }
+      80%, 100%{ opacity: .25; }
     }
 
     /* Hide unlock card when unlocked */
-    .hide{
-      display:none;
-    }
+    .hide{ display:none; }
 
-    /* Single cam view area */
+    /* Single cam view */
     .singleWrap{
-      height: calc(100% - 54px);
-      box-sizing:border-box;
+      height: calc(100% - 64px);
+      padding: 14px;
     }
     .singleCam{
       height:100%;
-      width:100%;
-      position:relative;
-      background:#000;
+      border-radius: 24px;
       overflow:hidden;
+      position:relative;
+      border:1px solid rgba(255,255,255,.10);
+      box-shadow: 0 18px 55px rgba(0,0,0,.7);
+      cursor:pointer; /* click to go back */
+      background:#000;
     }
     .singleCam img{
-      height:100%;
       width:100%;
+      height:100%;
       object-fit:cover;
       display:block;
-      filter: contrast(1.05) brightness(0.95);
+      filter: contrast(1.06) brightness(.95) saturate(1.05);
+    }
+    .singleCam::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        radial-gradient(closest-side at 50% 45%, transparent 55%, rgba(0,0,0,.35)),
+        repeating-linear-gradient(
+          180deg,
+          rgba(255,255,255,.04),
+          rgba(255,255,255,.04) 1px,
+          transparent 2px,
+          transparent 6px
+        );
+      opacity:.35;
+      pointer-events:none;
+      mix-blend-mode: overlay;
     }
 
-    @media (max-width: 520px){
-      .container{ width: 92vw; }
-      .grid{ gap:8px; padding:8px; }
-      .cam{ border-radius:12px; }
+    /* Mobile */
+    @media (max-width: 560px){
+      button{ width: 120px; }
+      .grid{ gap:10px; padding:10px; }
+      .cam{ border-radius: 18px; }
+      .singleWrap{ padding:10px; }
+      .topbar{ height:60px; }
+      .grid, .singleWrap{ height: calc(100% - 60px); }
     }
   </style>
 </head>
 
 <body>
+  <div class="spark"></div>
+  <div class="spark"></div>
+  <div class="spark"></div>
 
-  <!-- Unlock UI -->
-  <div class="container" id="unlockCard">
-    <h2>🔒 Surveillance Cameras</h2>
+  <!-- Unlock Panel -->
+  <div class="panel" id="unlockCard">
+    <div class="panelHead">
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="brandText">
+          <div class="t1">SECURITY CONSOLE</div>
+          <div class="t2">Local access required</div>
+        </div>
+      </div>
 
-    <!-- Visible typing -->
-    <input id="codeInput" type="text" placeholder="Enter code..." autocomplete="off" />
+      <div class="statusPills">
+        <div class="pill"><span class="dot"></span>Online</div>
+        <div class="pill"><span class="dot red"></span>Locked</div>
+      </div>
+    </div>
 
-    <button id="unlockBtn">Unlock</button>
-    <div class="message" id="message"></div>
+    <div class="content" id="contentBox">
+      <div class="title">
+        <div>
+          <h2>Enter Access Code</h2>
+          <div class="subtitle">Unlock to view the camera grid.</div>
+        </div>
+        <div class="hint">Tip: Press <b>Enter</b> to submit</div>
+      </div>
+
+      <div class="row">
+        <div class="field">
+          <span class="keyIcon" aria-hidden="true"></span>
+          <!-- Visible typing -->
+          <input id="codeInput" type="text" placeholder="Type code here..." autocomplete="off" />
+        </div>
+        <button id="unlockBtn">UNLOCK</button>
+      </div>
+
+      <div class="message" id="message"></div>
+    </div>
   </div>
 
-  <!-- Fullscreen CCTV GRID -->
+  <!-- CCTV GRID OVERLAY -->
   <div class="overlay" id="overlay">
     <div class="topbar">
-      <div class="left">CCTV MONITOR • LIVE FEED</div>
-      <div class="right">
-        <div class="pill" id="clock">--:--:--</div>
+      <div class="topLeft">
+        <div class="main">CCTV MONITOR • LIVE FEEDS</div>
+        <div class="sub">Click a camera to open full view</div>
+      </div>
+      <div class="topRight">
+        <div class="badge"><span class="tinyDot"></span><span id="clock">--:--:--</span></div>
         <button class="exitBtn" id="exitBtn">Exit</button>
       </div>
     </div>
 
-    <div class="grid" id="grid">
+    <div class="grid">
       <div class="cam" onclick="openCam(this)">
         <img src="cam1.jpg" alt="Camera 1" />
-        <div class="label">CAM 01</div>
-        <div class="rec"><span class="dot"></span>REC</div>
+        <div class="rec"><span class="recDot"></span>REC</div>
+        <div class="camMeta">
+          <div class="label">CAM 01</div>
+          <div class="smallLine">ZONE A • HALL</div>
+        </div>
       </div>
 
       <div class="cam" onclick="openCam(this)">
         <img src="cam2.jpg" alt="Camera 2" />
-        <div class="label">CAM 02</div>
-        <div class="rec"><span class="dot"></span>REC</div>
+        <div class="rec"><span class="recDot"></span>REC</div>
+        <div class="camMeta">
+          <div class="label">CAM 02</div>
+          <div class="smallLine">ZONE B • ENTRY</div>
+        </div>
       </div>
 
       <div class="cam" onclick="openCam(this)">
         <img src="cam3.jpg" alt="Camera 3" />
-        <div class="label">CAM 03</div>
-        <div class="rec"><span class="dot"></span>REC</div>
+        <div class="rec"><span class="recDot"></span>REC</div>
+        <div class="camMeta">
+          <div class="label">CAM 03</div>
+          <div class="smallLine">ZONE C • BACK</div>
+        </div>
       </div>
 
       <div class="cam" onclick="openCam(this)">
         <img src="cam4.jpg" alt="Camera 4" />
-        <div class="label">CAM 04</div>
-        <div class="rec"><span class="dot"></span>REC</div>
+        <div class="rec"><span class="recDot"></span>REC</div>
+        <div class="camMeta">
+          <div class="label">CAM 04</div>
+          <div class="smallLine">ZONE D • YARD</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- FULLSCREEN SINGLE CAM OVERLAY -->
+  <!-- SINGLE CAM OVERLAY -->
   <div class="overlay" id="camOverlay">
     <div class="topbar">
-      <div class="left" id="camTitle">CAM • FULL VIEW</div>
-      <div class="right">
-        <div class="pill" id="clock2">--:--:--</div>
+      <div class="topLeft">
+        <div class="main" id="camTitle">CAM • FULL VIEW</div>
+        <div class="sub">Click the image (or Back / ESC) to return</div>
+      </div>
+      <div class="topRight">
+        <div class="badge"><span class="tinyDot"></span><span id="clock2">--:--:--</span></div>
         <button class="exitBtn" onclick="closeCam()">Back</button>
       </div>
     </div>
@@ -266,8 +665,11 @@
     <div class="singleWrap">
       <div class="singleCam" onclick="closeCam()">
         <img id="camView" src="" alt="Camera View" />
-        <div class="label" id="camLabel"></div>
-        <div class="rec"><span class="dot"></span>REC</div>
+        <div class="rec" style="right:16px; top:16px;"><span class="recDot"></span>REC</div>
+        <div class="camMeta" style="left:16px; bottom:16px;">
+          <div class="label" id="camLabel">CAM</div>
+          <div class="smallLine" id="camZone">ZONE • FEED</div>
+        </div>
       </div>
     </div>
   </div>
